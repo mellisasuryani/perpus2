@@ -9,66 +9,64 @@ router.post('/', async (req, res, next) => {
     req.body;
         const newAnggota= await anggota.create({ nama, noHP});
         res.status(201).json(newAnggota);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
-    });
+});
     
     // Endpoint untuk menampilkan semua produk
-    router.get('/',  async (req, res, next) => {
+    router.get('/',  async (req, res) => {
         try {
-            const anggota = await anggota.findAll();
-            res.json(anggota);
-            } catch (err) {
-            next(err);
+            const anggotas = await anggota.findAll();
+            if (anggotas.length === 0) {
+                res.status(404).json({ message: 'anggotas not found' });
+            } else {
+                res.json(anggotas);
             }
-            });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
     
             // Endpoint untuk menampilkan produk berdasarkan ID
-            router.get('/:id',  async (req, res, next) => {
+            router.get('/:id',  async (req, res) => {
             try {
-            const anggota= await anggota.findByPk(req.params.id);
-            if (anggota) {
-            res.json(anggota);
-            } else {
-                res.status(404).json({ message: 'anggota not found' });
-            }
-            } catch (err) {
-            next(err);
-            }	
-            });
+                const { id } = req.params;
+            const anggotas = await anggota.findByPk(id);
+            if (!anggota) throw new Error('anggota not found');
+        res.json(anggotas);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
             // Endpoint untuk memperbarui produk berdasarkan ID
-            router.put('/:id',  async (req, res, next) => {
+            router.put('/:id',  async (req, res) => {
             try {
-            const { nama, noHP} =
-            req.body;
-            const anggota = await anggota.findByPk(req.params.id);
-            if (anggota) {
-            product.nama = nama;
-            product.noHP = noHP;
-            await anggota.save();
-            res.json(anggota);
-            } else {
-            res.status(404).json({ message: 'anggota not found' });
-            }
-            } catch (err) {
-            next(err);
-            }
-            });
+                const { id } = req.params;
+                const anggotas = await anggota.findByPk(id);
+            const { nama, noHP} = req.body;
+            if (!anggota) throw new Error('anggota not found');
+            anggotas.nama = nama;
+            anggotas.noHP = noHP;
+            await anggotas.save();
+            res.json(anggotas);
+        } catch (error) {
+            res.status(404).json({ message: error.message });
+        }
+    });
             // Endpoint untuk menghapus produk berdasarkan ID
-            router.delete('/:id', async (req, res, next) => {
+            router.delete('/:id', async (req, res) => {
             try {
-            const anggota = await anggota.findByPk(req.params.id);
-            if (anggota) {
-                await anggota.destroy();
-                res.json({ message: 'Anggota deleted' });
-                } else {
-                res.status(404).json({ message: 'Anggota not found' });
-                }
-                } catch (err) {
-                next(err);
-                }
-                }); 
+                const { id } = req.params;
+            const anggotas = await anggota.findByPk(id);
+            if (!anggota) throw new Error('anggota not found');
+                await anggotas.destroy();
+                res.sendStatus(204);
+            } catch (error) {
+                res.status(400).json({ message: error.message });
+            }
+        });
+        
     
         module.exports = router;
     

@@ -3,75 +3,74 @@ const router = express.Router();
 const pengembalian = require('../models/pengembalian');
 
 // Endpoint untuk menambahkan produk baru
-router.post('/',  async (req, res, next) => {
+router.post('/',  async (req, res) => {
     try {
-        const { tanggalPengembalian, denda, total} =
-    req.body;
+        const { tanggalPengembalian, denda, total} = req.body;
         const newPengembalian = await pengembalian.create({ tanggalPengembalian, denda, total});
         res.status(201).json(newPengembalian);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
-    });
+});
     
     // Endpoint untuk menampilkan semua produk
-    router.get('/', async (req, res, next) => {
+    router.get('/', async (req, res) => {
         try {
-            const pengembalian = await pengembalian.findAll();
-            res.json(pengembalian);
-            } catch (err) {
-            next(err);
+            const pengembalians = await pengembalian.findAll();
+            if (pengembalians.length === 0) {
+                res.status(404).json({ message: 'pengembalians not found' });
+            } else {
+                res.json(pengembalians);
             }
-            });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
     
             // Endpoint untuk menampilkan produk berdasarkan ID
-            router.get('/:id',  async (req, res, next) => {
+            router.get('/:id',  async (req, res) => {
             try {
-            const pengembalian = await pengembalian.findByPk(req.params.id);
-            if (pengembalian) {
-            res.json(pengembalian);
-            } else {
-            res.status(404).json({ message: 'pengembalian not found' });
-            }
-            } catch (err) {
-            next(err);
-            }
-            });
+                const { id } = req.params;
+            const pengembalians = await pengembalian.findByPk(id);
+            if (!pengembalian) throw new Error('pengembalian not found');
+            res.json(pengembalians);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
+
             // Endpoint untuk memperbarui produk berdasarkan ID
-            router.put('/:id', async (req, res, next) => {
+            router.put('/:id', async (req, res) => {
             try {
-            const { tanggalPengembalian, denda, total} =
-            req.body;
-            const pengembalian = await pengembalian.findByPk(req.params.id);
-            if (pengembalian) {
+                const { id } = req.params;
+                const pengembalians = await pengembalian.findByPk(id);
+            const { tanggalPengembalian, denda, total} = req.body;
+            if (!pengembalian) throw new Error('pengembalian not found');
         
-            pengembalian.tanggalPengembalian = tanggalPengembalian;
-            pengembalian.denda = denda;
-            pengembalian.total = total;
+            pengembalians.tanggalPengembalian = tanggalPengembalian;
+            pengembalians.denda = denda;
+            pengembalians.total = total;
     
-            await pengembalian.save();
-            res.json(pengembalian);
-            } else {
-            res.status(404).json({ message: 'pengembalian not found' });
-            }
-            } catch (err) {
-            next(err);
-            }
-            });
+            await pengembalians.save();
+            res.json(pengembalians);
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
+    });
+
             // Endpoint untuk menghapus produk berdasarkan ID
-            router.delete('/:id',  async (req, res, next) => {
+            router.delete('/:id',  async (req, res) => {
             try {
-            const pengembalian = await pengembalian.findByPk(req.params.id);
-            if (pengembalian) {
-                await admin.destroy();
-                res.json({ message: 'pengembalian deleted' });
-                } else {
-                res.status(404).json({ message: 'pengembalian not found' });
-                }
-                } catch (err) {
-                next(err);
-                }
-                }); 
-    
+                const { id } = req.params;
+            const pengembalians = await pengembalian.findByPk(id);
+            if (!pengembalian) throw new Error('pengembalian not found');
+                await pengembalians.destroy();
+                res.sendStatus(204);
+            } catch (error) {
+                res.status(400).json({ message: error.message });
+            }
+        });
+
+        
         module.exports = router;
     

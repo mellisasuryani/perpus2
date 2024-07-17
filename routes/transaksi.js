@@ -3,74 +3,73 @@ const router = express.Router();
 const transaksi = require('../models/transaksi'); 
 
 // Endpoint untuk menambahkan produk baru
-router.post('/',   async (req, res, next) => {
+router.post('/',   async (req, res) => {
     try {
-        const { tanggalPengembalian, IDanggota, IDbuku, IDpengembalian } =
-    req.body;
-        const newTransaksi = await transaksi.create({ tanggalPengembalian, IDanggota, IDbuku, IDpengembalian });
+        const { tanggalPeminjaman, IDanggota, IDbuku, IDpengembalian } = req.body;
+        const newTransaksi = await transaksi.create({ tanggalPeminjaman, IDanggota, IDbuku, IDpengembalian });
         res.status(201).json(newTransaksi);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
-    });
+});
     
     // Endpoint untuk menampilkan semua produk
-    router.get('/',  async (req, res, next) => {
+    router.get('/',  async (req, res) => {
         try {
-            const transaksi = await transaksi.findAll();
-            res.json(transaksi);
-            } catch (err) {
-            next(err);
+            const transaksis = await transaksi.findAll();
+            if (transaksis.length === 0) {
+                res.status(404).json({ message: 'transaksi not found' });
+            } else {
+                res.json(transaksis);
             }
-            });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
+    
     
             // Endpoint untuk menampilkan produk berdasarkan ID
-            router.get('/:id', async (req, res, next) => {
+            router.get('/:id', async (req, res) => {
             try {
-            const transaksi = await transaksi.findByPk(req.params.id);
-            if (transaksi) {
-            res.json(transaksi);
-            } else {
-            res.status(404).json({ message: 'transaksi not found' });
-            }
-            } catch (err) {
-            next(err);
-            }
-            });
+                const { id } = req.params;
+            const transaksis = await transaksi.findByPk(id);
+            if (!transaksi) throw new Error('transaksi not found');
+            res.json(transaksis);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
+
             // Endpoint untuk memperbarui produk berdasarkan ID
-            router.put('/:id', async (req, res, next) => {
+            router.put('/:id', async (req, res) => {
             try {
-            const { tanggalPengembalian, IDanggota, IDbuku, IDpengembalian } =
-            req.body;
-            const transaksi = await transaksi.findByPk(req.params.id);
-            if (transaksi) {
-            transaksi.tanggalPengembalian = tanggalPengembalian;
-            transaksi.IDanggota = IDanggota;
-            transaksi.IDbuku = IDbuku;
-            transaksi.IDpengembalian = IDpengembalian;
-            await transaksi.save();
-            res.json(transaksi);
-            } else {
-            res.status(404).json({ message: 'transaksi not found' });
-            }
-            } catch (err) {
-            next(err);
-            }
-            });
+                const { id } = req.params;
+                const transaksis = await transaksi.findByPk(id);
+            const { tanggalPeminjaman, IDanggota, IDbuku, IDpengembalian } = req.body;
+            if (!transaksi) throw new Error('transaksi not found');
+            transaksis.tanggalPeminjaman = tanggalPeminjaman;
+            transaksis.IDanggota = IDanggota;
+            transaksis.IDbuku = IDbuku;
+            transaksis.IDpengembalian = IDpengembalian;
+            await transaksis.save();
+            res.json(transaksis);
+           
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
+    });
             // Endpoint untuk menghapus produk berdasarkan ID
-            router.delete('/:id',  async (req, res, next) => {
+            router.delete('/:id',  async (req, res) => {
             try {
-            const transaksi = await transaksi.findByPk(req.params.id);
-            if (transaksi) {
-                await transaksi.destroy();
-                res.json({ message: 'transaksi deleted' });
-                } else {
-                res.status(404).json({ message: 'transaksi not found' });
-                }
-                } catch (err) {
-                next(err);
-                }
-                }); 
-    
+                const { id } = req.params;
+            const transaksis = await transaksi.findByPk(id);
+            if (!transaksi) throw new Error('transaksi not found');
+                await transaksis.destroy();
+                res.sendStatus(204);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
         module.exports = router;
     

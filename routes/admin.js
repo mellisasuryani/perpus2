@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const admin =require('../models/admin');
+const admin = require('../models/admin');
+
 
 // Endpoint untuk menambahkan produk baru
 router.post('/', async (req, res, next) => {
@@ -15,60 +16,61 @@ router.post('/', async (req, res, next) => {
     });
     
     // Endpoint untuk menampilkan semua produk
-    router.get('/', async (req, res, next) => {
+    router.get('/', async (req, res) => {
         try {
-            const admin = await admin.findAll();
-            res.json(admin);
-            } catch (err) {
-            next(err);
+            const admins = await admin.findAll();
+            if (admins.length === 0) {
+                res.status(404).json({ message: 'admins not found' });
+            } else {
+            res.json(admins);
+            }
+        } catch (error) {
+            res.status(500).json({ message: error.message });
         }
     });
 
      // Endpoint untuk menampilkan produk berdasarkan ID
-     router.get('/:id',  async (req, res, next) => {
-     try {
-     const admin = await admin.findByPk(req.params.id);
-     if (admin) {
-     res.json(admin);
-     } else {
-     res.status(404).json({ message: 'admin not found' });
-     }
-     } catch (err) {
-     next(err);
-     }
-     });
+     router.get('/:id',  async (req, res) => {
+        try {
+        const { id } = req.params;
+        const admins = await admin.findByPk(id);
+        if (!admin) throw new Error('admin not found');
+    res.json(admins);
+} catch (error) {
+    res.status(500).json({ message: error.message });
+}
+});
+     
+        
+   
      // Endpoint untuk memperbarui produk berdasarkan ID
-     router.put('/:id', async(req, res, next) => {
+     router.put('/:id', async(req, res) => {
      try {
-     const { nama, alamat} =
-     req.body;
-     const admin = await admin.findByPk(req.params.id);
-     if (admin) {
-     admin.nama = nama;
-     admin.alamat = alamat;
-     await admin.save();
-     res.json(admin);
-     } else {
-     res.status(404).json({ message: 'admin not found' });
-     }
-     } catch (err) {
-     next(err);
-     }
-     });
-     // Endpoint untuk menghapus produk berdasarkan ID
-     router.delete('/:id', async (req, res, next) => {
-     try {
-     const admin = await admin.findByPk(req.params.id);
-     if (admin) {
-         await admin.destroy();
-         res.json({ message: 'admin deleted' });
-         } else {
-         res.status(404).json({ message: 'admin not found' });
-        }
-    } catch (err) {
-    next(err);
+        const { id } = req.params;
+    const admins = await admin.findByPk(id);
+     const { nama, alamat} = req.body;
+     if (!admin) throw new Error('admin not found');
+     admins.nama = nama;
+     admins.alamat = alamat;
+     await admins.save();
+     res.json(admins);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
-    }); 
+});
+     // Endpoint untuk menghapus produk berdasarkan ID
+     router.delete('/:id', async (req, res) => {
+     try {
+        const { id } = req.params;
+     const admins = await admin.findByPk(id);
+     if (!admin) throw new Error('admin not found');
+         await admins.destroy();
+         res.sendStatus(204);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
 
 module.exports = router;
 
