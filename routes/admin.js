@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const admin = require('../models/admin');
-
+const { authenticate, authorize } = require('../middleware/auth');
 
 // Endpoint untuk menambahkan produk baru
-router.post('/', async (req, res, next) => {
+
+router.post('/',  authenticate, authorize(['admin']), async (req, res, next) => {
     try {
         const { nama, alamat} =
     req.body;
@@ -16,7 +17,8 @@ router.post('/', async (req, res, next) => {
     });
     
     // Endpoint untuk menampilkan semua produk
-    router.get('/', async (req, res) => {
+    
+    router.get('/',  async (req, res) => {
         try {
             const admins = await admin.findAll();
             if (admins.length === 0) {
@@ -30,7 +32,7 @@ router.post('/', async (req, res, next) => {
     });
 
      // Endpoint untuk menampilkan produk berdasarkan ID
-     router.get('/:id',  async (req, res) => {
+     router.get('/:id', async (req, res) => {
         try {
         const { id } = req.params;
         const admins = await admin.findByPk(id);
@@ -44,7 +46,7 @@ router.post('/', async (req, res, next) => {
         
    
      // Endpoint untuk memperbarui produk berdasarkan ID
-     router.put('/:id', async(req, res) => {
+     router.put('/:id', authenticate, authorize(['admin']),  async(req, res) => {
      try {
         const { id } = req.params;
     const admins = await admin.findByPk(id);
@@ -59,7 +61,7 @@ router.post('/', async (req, res, next) => {
     }
 });
      // Endpoint untuk menghapus produk berdasarkan ID
-     router.delete('/:id', async (req, res) => {
+     router.delete('/:id', authenticate, authorize(['admin']),  async (req, res) => {
      try {
         const { id } = req.params;
      const admins = await admin.findByPk(id);

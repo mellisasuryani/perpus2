@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const buku = require('../models/buku');
+const { authenticate, authorize } = require('../middleware/auth');
 
 // Endpoint untuk menambahkan produk baru
-router.post('/',   async (req, res) => {
+//pada bagian ini saya menambahkan jwt agar hanya admin yang memiliki token saja yang mampu menambahkan data buku baru pada sistem
+router.post('/',  authenticate, authorize (['admin']),  async (req, res) => {
     try {
         const { judul, pengarang, penerbit, isbn, tahunTerbit } =
     req.body;
@@ -15,6 +17,7 @@ router.post('/',   async (req, res) => {
 });
     
     // Endpoint untuk menampilkan semua produk
+    //pada bagian ini saya tidak menambahkan jwt agar tidak hanya admin saja yang bisa melihat data buku, namun juga anggota lainnya
     router.get('/',  async (req, res) => {
         try {
             const bukus = await buku.findAll();
@@ -29,7 +32,8 @@ router.post('/',   async (req, res) => {
     });
     
             // Endpoint untuk menampilkan produk berdasarkan ID
-            router.get('/:id',  async (req, res) => {
+            
+            router.get('/:id',   async (req, res) => {
             try {
                 const { id } = req.params;
             const bukus = await buku.findByPk(id);
@@ -42,7 +46,8 @@ router.post('/',   async (req, res) => {
 
         
             // Endpoint untuk memperbarui produk berdasarkan ID
-            router.put('/:id', async (req, res) => {
+            //pada bagian ini saya menambahkan jwt agar hanya admin yang memiliki token saja yang mampu memperbarui data buku  pada sistem
+            router.put('/:id', authenticate, authorize(['admin']),  async (req, res) => {
                 try {
                     const { id } = req.params;
                     const bukus = await buku.findByPk(id);
@@ -64,7 +69,8 @@ router.post('/',   async (req, res) => {
             });
 
                     // Endpoint untuk menghapus produk berdasarkan ID
-                    router.delete('/:id',  async (req, res) => {
+                    //pada bagian ini saya menambahkan jwt agar hanya admin yang memiliki token saja yang mampu menghapus data buku  pada sistem
+                    router.delete('/:id', authenticate, authorize(['admin']), async (req, res) => {
                     try {
                         const { id } = req.params;
                     const  bukus = await  buku.findByPk(id);

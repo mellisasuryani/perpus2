@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const transaksi = require('../models/transaksi'); 
+const { authenticate, authorize } = require('../middleware/auth');
 
 // Endpoint untuk menambahkan produk baru
-router.post('/',   async (req, res) => {
+router.post('/', authenticate, authorize(['admin']),   async (req, res) => {
     try {
         const { tanggalPeminjaman, IDanggota, IDbuku, IDpengembalian } = req.body;
         const newTransaksi = await transaksi.create({ tanggalPeminjaman, IDanggota, IDbuku, IDpengembalian });
@@ -29,7 +30,7 @@ router.post('/',   async (req, res) => {
     
     
             // Endpoint untuk menampilkan produk berdasarkan ID
-            router.get('/:id', async (req, res) => {
+            router.get('/:id',  async (req, res) => {
             try {
                 const { id } = req.params;
             const transaksis = await transaksi.findByPk(id);
@@ -41,7 +42,7 @@ router.post('/',   async (req, res) => {
     });
 
             // Endpoint untuk memperbarui produk berdasarkan ID
-            router.put('/:id', async (req, res) => {
+            router.put('/:id', authenticate, authorize(['admin']),   async (req, res) => {
             try {
                 const { id } = req.params;
                 const transaksis = await transaksi.findByPk(id);
@@ -59,7 +60,7 @@ router.post('/',   async (req, res) => {
         }
     });
             // Endpoint untuk menghapus produk berdasarkan ID
-            router.delete('/:id',  async (req, res) => {
+            router.delete('/:id',  authenticate, authorize(['admin']), async (req, res) => {
             try {
                 const { id } = req.params;
             const transaksis = await transaksi.findByPk(id);

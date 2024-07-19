@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const anggota = require('../models/anggota'); // Impor model Product
+const { authenticate, authorize } = require('../middleware/auth');
 
 // Endpoint untuk menambahkan produk baru
-router.post('/', async (req, res, next) => {
+router.post('/', authenticate, authorize(['admin']),  async (req, res, next) => {
     try {
         const { nama, noHP} =
     req.body;
@@ -40,7 +41,7 @@ router.post('/', async (req, res, next) => {
     }
 });
             // Endpoint untuk memperbarui produk berdasarkan ID
-            router.put('/:id',  async (req, res) => {
+            router.put('/:id', authenticate, authorize(['admin']),  async (req, res) => {
             try {
                 const { id } = req.params;
                 const anggotas = await anggota.findByPk(id);
@@ -55,7 +56,7 @@ router.post('/', async (req, res, next) => {
         }
     });
             // Endpoint untuk menghapus produk berdasarkan ID
-            router.delete('/:id', async (req, res) => {
+            router.delete('/:id', authenticate, authorize(['admin']),   async (req, res) => {
             try {
                 const { id } = req.params;
             const anggotas = await anggota.findByPk(id);

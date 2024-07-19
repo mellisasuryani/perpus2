@@ -20,6 +20,7 @@ var anggotaRouter = require('./routes/anggota');
 var bukuRouter = require('./routes/buku');
 var pengembalianRouter = require('./routes/pengembalian');
 var transaksiRouter = require('./routes/transaksi');
+var authRouter = require('./routes/auth');
 
 var app = express();
 
@@ -40,6 +41,7 @@ app.use('/anggota', anggotaRouter);
 app.use('/buku', bukuRouter);
 app.use('/pengembalian', pengembalianRouter);
 app.use('/transaksi', transaksiRouter);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
